@@ -10,6 +10,8 @@ window.onload = function() {
 		var palette = document.getElementById('tileset');
 		var textDisplayArea = document.getElementById('raw');
 		var canvas = document.getElementById('map');
+		var width = document.getElementById('width');
+		var height = document.getElementById('height');
 
 		var clicking = false;
 
@@ -79,13 +81,29 @@ window.onload = function() {
 			clicking = false;
 		});
 
+		// Change selected tile on click
 		palette.addEventListener('mousedown', function(e) {
 			var mouseX = e.pageX - this.offsetLeft;
 			var mouseY = e.pageY - this.offsetTop;
-
 			selectedTile = Math.floor((mouseX - 1) / 32);
 		});
 
+		// Resize canvas if dimensions are changed
+		width.addEventListener('change', function() {
+			resizeMap(true, this.value);
+			textDisplayArea.innerText = mapToString(mapData.map);
+			canvas.height = 32 * mapData.height;
+			canvas.width = 32 * mapData.width;
+			drawMap();
+		});
+
+		height.addEventListener('change', function() {
+			resizeMap(false, this.value);
+			textDisplayArea.innerText = mapToString(mapData.map);
+			canvas.height = 32 * mapData.height;
+			canvas.width = 32 * mapData.width;
+			drawMap();
+		});
 }
 
 function drawMap() {
@@ -113,9 +131,14 @@ function drawMap() {
 
 function loadMap(text) {
 	mapData = JSON.parse(text);
+
+	document.getElementById('width').value = mapData.height;
+	document.getElementById('height').value = mapData.width;
+
 	var canvas = document.getElementById('map');
 	canvas.height = 32 * mapData.height;
 	canvas.width = 32 * mapData.width;
+
 	drawMap();
 }
 
@@ -123,6 +146,7 @@ function addClick(x, y, dragging) {
 	clickData.push([x, y, dragging]);
 }
 
+// Called after a tile is changed
 function updateMap() {
 	var ctx = document.getElementById('map').getContext('2d');
 	var cx, cy;
@@ -152,4 +176,38 @@ function mapToString() {
 		str += "\n";
 	}
 	return str;
+}
+
+function resizeMap(isWidth, newVal) {
+	var newMap = [];
+	var larger = false;
+	if(isWidth) {
+		for(var y = 0; y < mapData.height; y++) {
+			for(var x = 0; x < newVal; x++) {
+				if(x >= mapData.width) newMap.push(0);
+				else newMap.push(mapData.map[x + mapData.width * y]);
+			}
+		}
+
+		mapData.map = newMap;
+		mapData.width = newVal;
+	}
+
+	else {
+		for(var y = 0; y < newVal; y++) {
+			if(y >= mapData.height) {
+				for(var x = 0; x < mapData.width; x++) {
+					newMap.push(0);
+				}
+			}
+			else {
+				for(var x = 0; x < mapData.width; x++) {
+					newMap.push(mapData.map[x + mapData.width * y]);
+				}
+			}
+		}
+
+		mapData.map = newMap;
+		mapData.height = newVal;
+	}
 }
