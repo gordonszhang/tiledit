@@ -206,18 +206,22 @@ function applyFill() {
 
 function recursiveFill(tile, replaced, x, y) {
 	mapData.map[x + mapData.width * y] = tile;
+	var left = mapData.map[x - 1 + mapData.width * y];
+	var right = mapData.map[x + 1 + mapData.width * y];
+	var up = mapData.map[x + mapData.width * (y - 1)];
+	var down = mapData.map[x + mapData.width * (y + 1)];
 
-	if(x < mapData.width - 1) {
-		if(mapData.map[x + 1 + mapData.width * y] == replaced) recursiveFill(tile, replaced, x + 1, y);
-	}
 	if(x > 0) {
-		if(mapData.map[x - 1 + mapData.width * y] == replaced) recursiveFill(tile, replaced, x - 1, y);
+		if(left == replaced && left != tile) recursiveFill(tile, replaced, x - 1, y);
 	}
-	if(y < mapData.height - 1) {
-		if(mapData.map[x + mapData.width * (y + 1)] == replaced) recursiveFill(tile, replaced, x, y + 1);
+	if(x < mapData.width - 1) {
+		if(right == replaced && right != tile) recursiveFill(tile, replaced, x + 1, y);
 	}
 	if(y > 0) {
-		if(mapData.map[x + mapData.width * (y - 1)] == replaced) recursiveFill(tile, replaced, x, y - 1);
+		if(up == replaced && up != tile) recursiveFill(tile, replaced, x, y - 1);
+	}
+	if(y < mapData.height - 1) {
+		if(down == replaced && down != tile) recursiveFill(tile, replaced, x, y + 1);
 	}
 	return;
 }
