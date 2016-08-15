@@ -267,3 +267,11 @@ function resizeMap(isWidth, newVal) {
 		mapData.height = newVal;
 	}
 }
+
+function exportJson() {
+	var data = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(mapData));
+	var dlAnchorElem = document.getElementById('downloadAnchorElem');
+	dlAnchorElem.setAttribute("href",     data     );
+	dlAnchorElem.setAttribute("download", "map.json");
+	dlAnchorElem.click();
+}
