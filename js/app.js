@@ -2,6 +2,12 @@ var mapData;
 var tileSet;
 var clickData = [];
 var selectedTile = 0;
+var selectedTool = 0;
+
+var Tool = {
+	DRAW : 0,
+	FILL : 1
+}
 
 window.onload = function() {
 
@@ -67,13 +73,16 @@ window.onload = function() {
 			clicking = true;
 
 			console.log("You clicked the canvas at " + mouseX + " " + mouseY);
-			updateMap();
+
+			if(selectedTool == Tool.DRAW) applyDraw();
+			if(selectedTool == Tool.FILL) applyFill();
 		});
 
 		canvas.addEventListener('mousemove', function(e) {
 			if(clicking) {
 				addClick(e.pageX - this.offsetLeft, e.pageY - this.offsetTop, false);
-				updateMap();
+				if(selectedTool == Tool.DRAW) applyDraw();
+				//if(currentTool == Tool.FILL) applyFill();
 			}
 		});
 
@@ -103,6 +112,15 @@ window.onload = function() {
 			canvas.height = 32 * mapData.height;
 			canvas.width = 32 * mapData.width;
 			drawMap();
+		});
+
+		document.getElementById('draw').addEventListener('click', function() {
+			selectedTool = Tool.DRAW;
+		});
+
+
+		document.getElementById('fill').addEventListener('click', function() {
+			selectedTool = Tool.FILL;
 		});
 }
 
@@ -146,8 +164,8 @@ function addClick(x, y, dragging) {
 	clickData.push([x, y, dragging]);
 }
 
-// Called after a tile is changed
-function updateMap() {
+// Called when the draw tool is used to modify the canvas
+function applyDraw() {
 	var ctx = document.getElementById('map').getContext('2d');
 	var cx, cy;
 	for(var i = 0; i < clickData.length; i++) {
@@ -164,6 +182,44 @@ function updateMap() {
 		document.getElementById('raw').innerText = mapToString(mapData.map);
 	}
 	clickData = new Array();
+}
+
+// Called when the fill tool is used to modify the canvas
+function applyFill() {
+	var ctx = document.getElementById('map').getContext('2d');
+	var cx, cy;
+
+	if(clickData[0][0] == 1 || clickData[0][1] == 1) return;
+	if(clickData[0][0] > 32 * mapData.width || clickData[0][1] > 32 * mapData.height) return;
+
+	cx = Math.floor((clickData[0][0] - 1) / 32);
+	cy = Math.floor((clickData[0][1] - 1) / 32);
+
+	recursiveFill(selectedTile, mapData.map[cx + mapData.width * cy], cx, cy);
+	drawMap();
+
+	//document.getElementById('raw').innerText = JSON.stringify(mapData, null, "\t");
+	document.getElementById('raw').innerText = mapToString(mapData.map);
+
+	clickData = new Array();
+}
+
+function recursiveFill(tile, replaced, x, y) {
+	mapData.map[x + mapData.width * y] = tile;
+
+	if(x < mapData.width - 1) {
+		if(mapData.map[x + 1 + mapData.width * y] == replaced) recursiveFill(tile, replaced, x + 1, y);
+	}
+	if(x > 0) {
+		if(mapData.map[x - 1 + mapData.width * y] == replaced) recursiveFill(tile, replaced, x - 1, y);
+	}
+	if(y < mapData.height - 1) {
+		if(mapData.map[x + mapData.width * (y + 1)] == replaced) recursiveFill(tile, replaced, x, y + 1);
+	}
+	if(y > 0) {
+		if(mapData.map[x + mapData.width * (y - 1)] == replaced) recursiveFill(tile, replaced, x, y - 1);
+	}
+	return;
 }
 
 function mapToString() {
