@@ -7,7 +7,7 @@ var selectedTool = 0;
 var Tool = {
 	DRAW : 0,
 	FILL : 1
-}
+};
 
 window.onload = function() {
 
@@ -36,11 +36,11 @@ window.onload = function() {
 					drawMap();
 					//palette.appendChild(tileSet);
 					palette.getContext('2d').drawImage(tileSet, 0, 0);
-				}
+				};
 
 				reader.readAsDataURL(file);
 			} else {
-				palette.innerHTML = "File not supported!"
+				palette.innerHTML = "File not supported!";
 			}
 		});
 
@@ -56,11 +56,11 @@ window.onload = function() {
 					//textDisplayArea.innerText = reader.result;
 					loadMap(reader.result);
 					textDisplayArea.innerText = mapToString(mapData.map);
-				}
+				};
 
 				reader.readAsText(file);
 			} else {
-				textDisplayArea.innerText = "File not supported!"
+				textDisplayArea.innerText = "File not supported!";
 			}
 		});
 
@@ -122,7 +122,7 @@ window.onload = function() {
 		document.getElementById('fill').addEventListener('click', function() {
 			selectedTool = Tool.FILL;
 		});
-}
+};
 
 function drawMap() {
 	var ctx = document.getElementById('map').getContext('2d');
@@ -181,7 +181,7 @@ function applyDraw() {
 		//document.getElementById('raw').innerText = JSON.stringify(mapData, null, "\t");
 		document.getElementById('raw').innerText = mapToString(mapData.map);
 	}
-	clickData = new Array();
+	clickData = [];
 }
 
 // Called when the fill tool is used to modify the canvas
@@ -201,7 +201,7 @@ function applyFill() {
 	//document.getElementById('raw').innerText = JSON.stringify(mapData, null, "\t");
 	document.getElementById('raw').innerText = mapToString(mapData.map);
 
-	clickData = new Array();
+	clickData = [];
 }
 
 function recursiveFill(tile, replaced, x, y) {
@@ -276,6 +276,6 @@ function exportJson() {
 	var data = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(mapData));
 	var dlAnchorElem = document.getElementById('downloadAnchorElem');
 	dlAnchorElem.setAttribute("href",     data     );
-	dlAnchorElem.setAttribute("download", "map.json");
+	dlAnchorElem.setAttribute("download", "map.txt");
 	dlAnchorElem.click();
 }
